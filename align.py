@@ -16,7 +16,7 @@ from imshow import imshow
     
 def alignImage(contourref,contour,img,usemask = None):
     if usemask == None:
-        usemask = np.full(img.shape,0,dtype=np.uint8)
+        usemask = np.full(img.shape,255,dtype=np.uint8)
     
     # Find size of image1
     sz = contourref.shape
@@ -63,7 +63,9 @@ def alignImage(contourref,contour,img,usemask = None):
     N_ITERATION_START = 500;
     N_ITERATION_END = 10000;
     EPS_START = 1e-6;
-    EPS_END = 1e-11;
+    # set ESP_END to larger to decrease run time
+    #EPS_END = 1e-11;
+    EPS_END = 1e-8;
     for lp1 in range(N_ITERATION_OUTER):
         '''
         Second, do rotational fix.
@@ -99,7 +101,7 @@ def alignImage(contourref,contour,img,usemask = None):
         
         
         # Run the ECC algorithm. The results are stored in warp_matrix.
-        (cc, warp_matrix) = cv2.findTransformECC (contourref,im2_aligned,warp_matrix, warp_mode, criteria)
+        (cc, warp_matrix) = cv2.findTransformECC (contourref,im2_aligned,warp_matrix, warp_mode, criteria, usemask, 5)
          
         if warp_mode == cv2.MOTION_HOMOGRAPHY :
             # Use warpPerspective for Homography 
@@ -145,7 +147,7 @@ def alignImage(contourref,contour,img,usemask = None):
         
         
         # Run the ECC algorithm. The results are stored in warp_matrix.
-        (cc, warp_matrix) = cv2.findTransformECC (contourref,im2_aligned,warp_matrix, warp_mode, criteria)
+        (cc, warp_matrix) = cv2.findTransformECC (contourref,im2_aligned,warp_matrix, warp_mode, criteria,usemask,5)
          
         if warp_mode == cv2.MOTION_HOMOGRAPHY :
             # Use warpPerspective for Homography 
@@ -173,9 +175,14 @@ if __name__ == '__main__':
     im1 = cv2.imread("D:\\footlongmodel2\\DSC_0536.jpg")
     im2 = cv2.imread("D:\\footlongmodel2\\DSC_0570.jpg")
     
-    im3 = np.uint8(im1[600:1800,3200:4000,1])
-    im4 = np.uint8(im2[600:1800,3200:4000,1])
+    im3 = np.uint8(im1[600:1800,3400:4000,1])
+    im4 = np.uint8(im2[600:1800,3400:4000,1])
     
-    imshow(im3,)
+    #im3 = np.uint8(im1[:,:,1])
+    #im4 = np.uint8(im2[:,:,1])
+    
+    imshow(im3,name='im3',x=im3.shape[0],y=im3.shape[1])
+    imshow(im4,name='im4',x=im4.shape[0],y=im4.shape[1])
     
     im5,res = alignImage(im3,im4,im4)
+    im6,res = alignImage(im3,im4,im3)
